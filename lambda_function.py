@@ -1,32 +1,10 @@
-# file I used to play around with locally to figure out how all this works
-
 import requests
 from requests_oauthlib import OAuth1Session
-import json
 import time
 from datetime import datetime, date
 import math
 import yaml
 from pytz import timezone
-
-# read in api keys from yaml file (not included in this repository for security reasons)
-with open('keys.yaml', 'r') as stream:
-    keys = yaml.load(stream)
-consumer_key = keys['api_key']
-consumer_secret = keys['api_secret_key']
-access_token = keys['access_token']
-access_token_secret = keys['access_token_secret']
-
-# calculate how long since last michigan championship
-last_michigan_championship = datetime(2004, 11, 20, 16, 43)
-print(str(last_michigan_championship.year))
-now = datetime.now()
-difference = datetime.now() - last_michigan_championship
-years = math.floor(difference.days / 365.25)
-days = math.floor(difference.days - (years * 365.25))
-hours = difference.seconds // 3600
-minutes = (difference.seconds // 60) % 60
-
 
 
 
@@ -34,6 +12,16 @@ def build_url(name):
     '''
     given the name for profile (not username), the function builds the url to post to which will update the bio accordingly
     '''
+    # calculate how long since last michigan championship
+    last_michigan_championship = datetime(2004, 11, 20, 16, 43)
+    print(str(last_michigan_championship.year))
+    now = datetime.now()
+    difference = datetime.now() - last_michigan_championship
+    years = math.floor(difference.days / 365.25)
+    days = math.floor(difference.days - (years * 365.25))
+    hours = difference.seconds // 3600
+    minutes = (difference.seconds // 60) % 60
+
     # add the time to the beginning of the bio
     tz = timezone('America/Detroit')
     t = datetime.now(tz)
@@ -66,7 +54,16 @@ def build_url(name):
 
     return url
 
-for i in range(100):
+def lambda_handler(even, context):
+    # read in api keys from yaml file (not included in this repository for security reasons)
+    with open('keys.yaml', 'r') as stream:
+        keys = yaml.load(stream)
+    consumer_key = keys['api_key']
+    consumer_secret = keys['api_secret_key']
+    access_token = keys['access_token']
+    access_token_secret = keys['access_token_secret']
+
+    # open connection to twitter API
     oauth = OAuth1Session(
         consumer_key,
         client_secret=consumer_secret,
@@ -74,4 +71,3 @@ for i in range(100):
         resource_owner_secret=access_token_secret,
     )
     response = oauth.post(build_url("AJ Bensman"))
-    time.sleep(60)
