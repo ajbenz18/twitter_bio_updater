@@ -43,14 +43,11 @@ def build_url(name):
     if minutes == 1:
         bio = bio.replace('minutes', 'minute')
 
-    print(bio)
-
     # combine the bio with proper endpoint
     url = 'https://api.twitter.com/1.1/account/update_profile.json?name=' + name + '&description=' + bio
     # how you indicate spaces in url
     url = url.replace(' ', '%20') # html encoding for space is %20
     url = url.replace(':', '%3A').replace('%3A', ':', 1) # html encoding for : is %3A, but we don't want the first colon replaced in https://
-    print(url)
 
     return url
 
